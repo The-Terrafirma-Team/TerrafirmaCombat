@@ -1,0 +1,252 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
+using System;
+using TerrafirmaCombat.Common.Interfaces;
+using TerrafirmaCombat.Common.Mechanics;
+using Terraria;
+using Terraria.Audio;
+using Terraria.GameContent;
+using Terraria.ID;
+using Terraria.ModLoader;
+
+namespace TerrafirmaCombat.Content.NPCs.Vanilla
+{
+    public class Slime : GlobalNPC
+    {
+        public override bool InstancePerEntity => true;
+        public override bool AppliesToEntity(NPC entity, bool lateInstantiation)
+        {
+            return entity.type == NPCID.BlueSlime;
+        }
+        public override void Unload()
+        {
+            TextureAssets.Npc[NPCID.BlueSlime] = ModContent.Request<Texture2D>($"Terraria/Images/NPC_{NPCID.BlueSlime}");
+            Main.npcFrameCount[NPCID.BlueSlime] = 2;
+        }
+        private static Asset<Texture2D> Extra;
+        public override void SetStaticDefaults()
+        {
+            TextureAssets.Npc[NPCID.BlueSlime] = Mod.Assets.Request<Texture2D>("Assets/Resprites/NPCs/Slime");
+            Extra = Mod.Assets.Request<Texture2D>("Assets/Resprites/NPCs/SlimeExtra");
+            Main.npcFrameCount[NPCID.BlueSlime] = 10;
+        }
+        private float frameCounter;
+        private int frame;
+        public override void FindFrame(NPC npc, int frameHeight)
+        {
+            if (npc.ai[2] == 0)
+            {
+                frameCounter += 1f;
+                if (frameCounter > 8)
+                {
+                    frameCounter = 0;
+                    frame++;
+                }
+
+                if (frame > 3)
+                    frame = 0;
+                if (npc.velocity.Y < 0)
+                    frame = 5;
+                else if (npc.velocity.Y > 0)
+                    frame = 4;
+            }
+            npc.frame.Y = frame * frameHeight;
+        }
+        public override void SetDefaults(NPC entity)
+        {
+            entity.alpha = 0;
+            entity.aiStyle = -1;
+        }
+        public override void SetDefaultsFromNetId(NPC npc)
+        {
+            npc.knockBackResist *= 0.5f;
+        }
+        public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot)
+        {
+            return CanAttack(npc);
+        }
+        private static bool CanAttack(NPC npc)
+        {
+            return npc.velocity.Y != 0 && npc.ai[3] == 1;
+        }
+        public override void OnHitByProjectile(NPC npc, Projectile projectile, NPC.HitInfo hit, int damageDone)
+        {
+            npc.ai[3] = 0;
+            npc.netUpdate = true;
+        }
+        public override void OnHitByItem(NPC npc, Player player, Item item, NPC.HitInfo hit, int damageDone)
+        {
+            npc.ai[3] = 0;
+            npc.netUpdate = true;
+        }
+        public override void AI(NPC npc)
+        {
+            if (npc.ai[0] < -500)
+            {
+                npc.ai[0] = Main.rand.Next(20);
+                npc.netUpdate = true;
+            }
+            if (npc.wet)
+            {
+                
+                npc.velocity.X += npc.direction * 0.1f;
+                if (npc.velocity.Y == 0)
+                {
+                    npc.velocity.Y = -2f;
+                }
+                if (npc.velocity.Y > 2f)
+                {
+                    npc.velocity.Y *= 0.9f;
+                }
+                npc.velocity.Y -= 0.5f;
+                if (npc.velocity.Y < -4f)
+                {
+                    npc.velocity.Y = -4f;
+                }
+                npc.ai[3] = 1;
+            }
+
+            if (npc.NPCStats().Parried)
+            {
+                npc.ai[3] = 0;
+                npc.ai[2] = 0;
+                npc.ai[0] = 0;
+                frameCounter+= 2;
+                if (npc.velocity.Y == 0)
+                {
+                    npc.velocity.X *= 0.8f;
+                }
+                return;
+            }
+
+            if (npc.velocity.Y == 0)
+            {
+                npc.velocity.X *= 0.8f;
+                npc.ai[0]++;
+                npc.ai[3] = 0;
+            }
+            else if (npc.ai[3] == 1)
+            {
+                if ((npc.direction == 1 && npc.velocity.X < 0.1f) || (npc.direction == -1 && npc.velocity.X > -0.1f) && CanAttack(npc))
+                    npc.velocity.X += npc.direction * 0.6f;
+            }
+            if (npc.ai[0] > 50)
+                frameCounter++;
+            if (npc.ai[0] > 75)
+                frameCounter++;
+
+            if (!npc.HasValidTarget)
+            {
+                npc.TargetClosest();
+                npc.ai[2] = 0;
+                if (npc.ai[0] > 100)
+                {
+                    if (Main.rand.NextBool(4))
+                    {
+                        npc.direction = Main.rand.NextBool() ? -1 : 1;
+                    }
+                    npc.ai[3] = 1;
+                    npc.ai[0] = Main.rand.Next(-20,0);
+                    npc.velocity.X += npc.direction * Main.rand.NextFloat(2, 4);
+                    npc.velocity.Y += Main.rand.NextFloat(-8, -5);
+                    npc.netUpdate = true;
+                }
+            }
+            else
+            {
+                Player p = Main.player[npc.target];
+
+                if (npc.ai[0] > 100)
+                {
+                    npc.direction = p.Center.X < npc.Center.X ? -1 : 1;
+                    if (npc.confused)
+                        npc.direction *= -1;
+                    npc.ai[3] = 1;
+                    npc.ai[0] = Main.rand.Next(40);
+                    npc.velocity.X += MathHelper.Clamp((p.Center.X - npc.Center.X) * 0.04f, -4, 4) * (npc.confused ? -1 : 1);
+                    npc.velocity.Y += MathHelper.Clamp((p.Center.Y - npc.Center.Y) * 0.06f, -12, Main.rand.NextFloat(-8, -5));
+                    npc.netUpdate = true;
+                }
+                else if ((((p.Center + p.velocity * 5).Distance(npc.Hitbox.ClosestPointInRect(p.Center)) < 32 && npc.ai[0] > 20) || npc.ai[2] > 0) && npc.ai[3] == 0) // Spike Attack
+                {
+                    npc.ai[0] = 0;
+                    npc.ai[2]++;
+                    switch (npc.ai[2] + 7)
+                    {
+                        case 10:
+                            frame = 6;
+                            break;
+                        case 30:
+                            frame = 7;
+                            break;
+                        case 38:
+                            frame = 8;
+                            break;
+                        case 40:
+                            frame = 9;
+
+                            for(int i = 0; i < 15; i++)
+                            {
+                                Dust.NewDustPerfect(npc.Center, DustID.t_Slime, (Main.rand.NextVector2CircularEdge(2, 1) * Main.rand.NextFloat(1, 2f)) + new Vector2(0,-2f),Main.rand.Next(255),npc.color);
+                            }
+                            SoundEngine.PlaySound(SoundID.NPCDeath1, npc.position);
+                            if(Main.netMode != NetmodeID.MultiplayerClient)
+                                Projectile.NewProjectile(npc.GetSource_FromThis(), npc.Top, Vector2.Zero, ModContent.ProjectileType<SlimeStab>(), 15, 1, -1, npc.whoAmI);
+                            break;
+                        case 46:
+                            frame = 8;
+                            break;
+                        case 50:
+                            npc.ai[2] = 0;
+                            break;
+                    }
+                }
+            }
+        }
+        private static void DrawSlime(NPC npc, Vector2 position, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor, float Opacity)
+        {
+            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 2), npc.frame with { Width = 62 }, Color.Black * 0.4f * npc.Opacity * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(TextureAssets.Npc[NPCID.BlueSlime].Value, position - screenPos + new Vector2(0, 2), npc.frame, npc.GetColor(npc.GetNPCColorTintedByBuffs(drawColor)) * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 2), npc.frame with { Width = 62, X = 62 }, drawColor with { A = 0 } * npc.Opacity * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+        }
+        public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        {
+            if (npc.ai[1] > 0)
+            {
+                Main.GetItemDrawFrame((int)npc.ai[1], out var itemTexture, out var rectangle);
+                float itemScale = 0.7f;
+                spriteBatch.Draw(itemTexture, npc.Center - screenPos + npc.velocity * -0.3f + new Vector2(0, (float)Math.Sin(Main.timeForVisualEffects * 0.05f)), rectangle, drawColor, npc.rotation + ((float)Math.Sin(Main.timeForVisualEffects * 0.1f) * (float)Math.Cos(Main.timeForVisualEffects * 0.03f) * (npc.velocity.Length() + 1) * 0.1f), rectangle.Size() / 2, itemScale * npc.scale, SpriteEffects.None, 0);
+            }
+            if (CanAttack(npc))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    DrawSlime(npc, npc.Bottom - (npc.velocity * i), spriteBatch, screenPos, Color.Lerp(drawColor, Color.Black, 0.2f + (i * 0.2f)), 0.2f);
+                }
+            }
+            DrawSlime(npc, npc.Bottom, spriteBatch, screenPos, drawColor, 1f);
+            return false;
+        }
+    }
+    public class SlimeStab : ModProjectile, IProjectileWithCustomBlockBehavior
+    {
+        public override string Texture => $"Terraria/Images/Projectile_1";
+
+        public override void SetDefaults()
+        {
+            Projectile.QuickDefaults(true, 92);
+            Projectile.timeLeft = 5;
+            Projectile.tileCollide = false;
+        }
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
+        {
+            modifiers.Knockback *= 1.5f;
+            target.AddBuff(BuffID.Slow, 60 * 15);
+        }
+        public void OnBlocked(Player.HurtInfo info, Player player)
+        {
+            player.GetModPlayer<BlockingPlayer>().ParryStrike(Main.npc[(int)Projectile.ai[0]]);
+        }
+    }
+}

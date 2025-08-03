@@ -1,0 +1,3 @@
+displayName = Skill Combat
+author = Jona
+version = 0.1

@@ -1,0 +1,19 @@
+Mods: {
+	TerrafirmaCombat: {
+		Keybinds.BlockKey.DisplayName: Block Key
+
+		Buffs: {
+			Shattered: {
+				DisplayName: Shattered
+				Description: Mods.TerrafirmaCombat.Buffs.Shattered.Description
+			}
+
+			Parried: {
+				DisplayName: Parried
+				Description: Mods.TerrafirmaCombat.Buffs.Parried.Description
+			}
+		}
+
+		Projectiles.SlimeStab.DisplayName: Slime Stab
+	}
+}
