@@ -63,11 +63,6 @@ namespace TerrafirmaCombat.Common.Mechanics
                     BlockConsumeTensionTimer = 0;
                     Player.PlayerStats().Tension -= 1;
                 }
-
-                //if (Main.MouseWorld.X < Player.Center.X)
-                //    Player.direction = -1;
-                //else
-                //    Player.direction = 1;
             }
             else
             {
@@ -89,16 +84,8 @@ namespace TerrafirmaCombat.Common.Mechanics
                 drawInfo.drawPlayer.SetCompositeArmBack(true, amt, Player.direction * -2.3f * blockAmount);
             }
         }
-        public void ParryStrike(NPC n)
-        {
-            Player.StrikeNPCDirect(n, n.CalculateHitInfo(Player.PlayerStats().ParryDamage, n.Center.X < Player.Center.X ? -1 : 1, false, 4, DamageClass.Melee));
-            n.AddBuff(ModContent.BuffType<Parried>(), 60);
-        }
         public override bool FreeDodge(HurtInfo info)
         {
-            //float modifier = 2f;
-            //if (Main.expertMode) modifier = 4f;
-            //int tensionCost = (int)Math.Clamp(info.Damage / modifier, 1, 40);
             int tensionCost = 10;
             if (Blocking)
             {
@@ -115,14 +102,13 @@ namespace TerrafirmaCombat.Common.Mechanics
                 info.DamageSource.TryGetCausingEntity(out var causingEntity);
                 if (causingEntity is NPC n)
                 {
-                    ParryStrike(n);
+                    Player.ParryStrike(n);
                 }
                 else if(causingEntity is Projectile p && p.ModProjectile is IProjectileWithCustomBlockBehavior i)
                 {
                     i.OnBlocked(info, Player);
                 }
-
-                    return true;
+                return true;
             }
             return base.FreeDodge(info);
         }

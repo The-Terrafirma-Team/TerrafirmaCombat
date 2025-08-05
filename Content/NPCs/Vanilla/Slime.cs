@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using TerrafirmaCombat.Common.Interfaces;
-using TerrafirmaCombat.Common.Mechanics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -53,14 +52,35 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             }
             npc.frame.Y = frame * frameHeight;
         }
-        public override void SetDefaults(NPC entity)
+        public override void SetDefaults(NPC npc)
         {
-            entity.alpha = 0;
-            entity.aiStyle = -1;
+            npc.alpha = 0;
+            npc.aiStyle = -1;
+            if (!npc.IsABestiaryIconDummy)
+                npc.color = Color.Lerp(new Color(0, 80, 255, 100), new Color(0, 200, 255, 100), Main.rand.NextFloat());
         }
         public override void SetDefaultsFromNetId(NPC npc)
         {
             npc.knockBackResist *= 0.5f;
+            if (!npc.IsABestiaryIconDummy)
+                switch (npc.netID)
+                {
+                    case NPCID.RedSlime:
+                        npc.color = Color.Lerp(new Color(255, 60, 0, 100), new Color(255, 0, 60, 100), Main.rand.NextFloat());
+                        break;
+                    case NPCID.YellowSlime:
+                        npc.color = Color.Lerp(new Color(255, 255, 0, 100), new Color(255, 175, 100, 100), Main.rand.NextFloat());
+                        break;
+                    case NPCID.GreenSlime:
+                        npc.color = Color.Lerp(new Color(0, 220, 40, 100), new Color(160, 255, 128, 100), Main.rand.NextFloat());
+                        break;
+                    case NPCID.PurpleSlime:
+                        npc.color = Color.Lerp(new Color(128, 0, 255, 100), new Color(255, 0, 255, 100), Main.rand.NextFloat());
+                        break;
+                    case NPCID.JungleSlime:
+                        npc.color = Color.Lerp(new Color(143, 215, 93, 100), new Color(128, 64, 0, 255), Main.rand.NextFloat(0.75f));
+                        break;
+                }
         }
         public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot)
         {
@@ -82,6 +102,10 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         }
         public override void AI(NPC npc)
         {
+            if (npc.direction == 0)
+            {
+                npc.direction = Main.rand.NextBool() ? 1 : -1;
+            }
             if (npc.ai[0] < -500)
             {
                 npc.ai[0] = Main.rand.Next(20);
@@ -89,7 +113,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             }
             if (npc.wet)
             {
-                
+
                 npc.velocity.X += npc.direction * 0.1f;
                 if (npc.velocity.Y == 0)
                 {
@@ -112,7 +136,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                 npc.ai[3] = 0;
                 npc.ai[2] = 0;
                 npc.ai[0] = 0;
-                frameCounter+= 2;
+                frameCounter += 2;
                 if (npc.velocity.Y == 0)
                 {
                     npc.velocity.X *= 0.8f;
@@ -138,16 +162,20 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
 
             if (!npc.HasValidTarget)
             {
-                npc.TargetClosest();
+                if (npc.life < npc.lifeMax || !Main.dayTime || npc.position.Y > Main.worldSurface * 16)
+                {
+                    npc.TargetClosest();
+                }
+
                 npc.ai[2] = 0;
                 if (npc.ai[0] > 100)
                 {
-                    if (Main.rand.NextBool(4))
+                    if (Main.rand.NextBool(9))
                     {
                         npc.direction = Main.rand.NextBool() ? -1 : 1;
                     }
                     npc.ai[3] = 1;
-                    npc.ai[0] = Main.rand.Next(-20,0);
+                    npc.ai[0] = Main.rand.Next(-20, 0);
                     npc.velocity.X += npc.direction * Main.rand.NextFloat(2, 4);
                     npc.velocity.Y += Main.rand.NextFloat(-8, -5);
                     npc.netUpdate = true;
@@ -186,12 +214,24 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                         case 40:
                             frame = 9;
 
-                            for(int i = 0; i < 15; i++)
+                            if (npc.netID == NPCID.JungleSlime)
                             {
-                                Dust.NewDustPerfect(npc.Center, DustID.t_Slime, (Main.rand.NextVector2CircularEdge(2, 1) * Main.rand.NextFloat(1, 2f)) + new Vector2(0,-2f),Main.rand.Next(255),npc.color);
+                                for (int i = 0; i < 7; i++)
+                                {
+                                    Dust.NewDustPerfect(npc.Center, DustID.Mud, (Main.rand.NextVector2CircularEdge(2, 1) * Main.rand.NextFloat(1, 2f)) + new Vector2(0, -2f), Main.rand.Next(128));
+                                    Dust.NewDustPerfect(npc.Center, DustID.JungleGrass, (Main.rand.NextVector2CircularEdge(2, 1) * Main.rand.NextFloat(1, 2f)) + new Vector2(0, -2f));
+                                }
+                            }
+
+                            else
+                            {
+                                for (int i = 0; i < 15; i++)
+                                {
+                                    Dust.NewDustPerfect(npc.Center, DustID.t_Slime, (Main.rand.NextVector2CircularEdge(2, 1) * Main.rand.NextFloat(1, 2f)) + new Vector2(0, -2f), Main.rand.Next(255), npc.color);
+                                }
                             }
                             SoundEngine.PlaySound(SoundID.NPCDeath1, npc.position);
-                            if(Main.netMode != NetmodeID.MultiplayerClient)
+                            if (Main.netMode != NetmodeID.MultiplayerClient)
                                 Projectile.NewProjectile(npc.GetSource_FromThis(), npc.Top, Vector2.Zero, ModContent.ProjectileType<SlimeStab>(), 15, 1, -1, npc.whoAmI);
                             break;
                         case 46:
@@ -206,9 +246,22 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         }
         private static void DrawSlime(NPC npc, Vector2 position, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor, float Opacity)
         {
-            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 2), npc.frame with { Width = 62 }, Color.Black * 0.4f * npc.Opacity * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(TextureAssets.Npc[NPCID.BlueSlime].Value, position - screenPos + new Vector2(0, 2), npc.frame, npc.GetColor(npc.GetNPCColorTintedByBuffs(drawColor)) * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 2), npc.frame with { Width = 62, X = 62 }, drawColor with { A = 0 } * npc.Opacity * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+            float HighlightOpacity = 1f;
+
+            switch (npc.netID)
+            {
+                case NPCID.BlackSlime:
+                case NPCID.BabySlime:
+                    HighlightOpacity = 0.2f;
+                    break;
+                case NPCID.JungleSlime:
+                    HighlightOpacity = 0.6f;
+                    break;
+            }
+
+            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 4), npc.frame with { Width = 62 }, Color.Black * 0.4f * npc.Opacity * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(TextureAssets.Npc[NPCID.BlueSlime].Value, position - screenPos + new Vector2(0, 4), npc.frame, npc.GetColor(npc.GetNPCColorTintedByBuffs(drawColor)) * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 4), npc.frame with { Width = 62, X = 62 }, drawColor with { A = 0 } * npc.Opacity * Opacity * HighlightOpacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
         }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
@@ -226,6 +279,8 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                 }
             }
             DrawSlime(npc, npc.Bottom, spriteBatch, screenPos, drawColor, 1f);
+
+            npc.DrawConfusedQuestionMark(spriteBatch, screenPos);
             return false;
         }
     }
@@ -238,6 +293,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             Projectile.QuickDefaults(true, 92);
             Projectile.timeLeft = 5;
             Projectile.tileCollide = false;
+            Projectile.hide = true;
         }
         public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
@@ -246,7 +302,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         }
         public void OnBlocked(Player.HurtInfo info, Player player)
         {
-            player.GetModPlayer<BlockingPlayer>().ParryStrike(Main.npc[(int)Projectile.ai[0]]);
+            player.ParryStrike(Main.npc[(int)Projectile.ai[0]]);
         }
     }
 }

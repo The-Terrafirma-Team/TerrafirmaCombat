@@ -31,8 +31,8 @@ namespace TerrafirmaCombat.Common.PlayerLayers
             float alpha = Lighting.Brightness((int)(drawInfo.drawPlayer.Center.X / 16), (int)((drawInfo.drawPlayer.Center.Y + drawInfo.drawPlayer.gfxOffY) / 16));
             float opacity = drawInfo.drawPlayer.GetModPlayer<BlockingPlayer>().blockAmount;
 
-            drawInfo.DrawDataCache.Add(new DrawData(BlockTex.Value, new Vector2((int)drawInfo.Center.X, (int)drawInfo.Center.Y) - Main.screenPosition, BlockTex.Frame(2,1,0,0), Color.Cyan with { A = 0 } * alpha * opacity, 0f, new Vector2(BlockTex.Height() / 2), 1f * opacity, SpriteEffects.None, 0));
-            drawInfo.DrawDataCache.Add(new DrawData(BlockTex.Value, new Vector2((int)drawInfo.Center.X, (int)drawInfo.Center.Y) - Main.screenPosition, BlockTex.Frame(2, 1, 1, 0), Color.White with { A = 0 } * alpha * opacity, 0f, new Vector2(BlockTex.Height() / 2), 1f * opacity, SpriteEffects.None, 0));
+            drawInfo.DrawDataCache.Add(new DrawData(BlockTex.Value, new Vector2((int)drawInfo.Center.X, (int)drawInfo.Center.Y) - Main.screenPosition - Vector2.UnitY, BlockTex.Frame(2,1,0,0), Color.Cyan with { A = 0 } * alpha * opacity, 0f, new Vector2(BlockTex.Height() / 2), 1f * opacity, SpriteEffects.None, 0));
+            drawInfo.DrawDataCache.Add(new DrawData(BlockTex.Value, new Vector2((int)drawInfo.Center.X, (int)drawInfo.Center.Y) - Main.screenPosition - Vector2.UnitY, BlockTex.Frame(2, 1, 1, 0), Color.White with { A = 0 } * alpha * opacity, 0f, new Vector2(BlockTex.Height() / 2), 1f * opacity, SpriteEffects.None, 0));
         }
         public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.LastVanillaLayer);
     }

@@ -1,18 +1,30 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TerrafirmaCombat.Common;
+using TerrafirmaCombat.Content.Buffs.Debuffs;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using TerrafirmaCombat.Common;
 
 namespace TerrafirmaCombat
 {
     public static class Extensions
     {
+        public static void DrawConfusedQuestionMark(this NPC rCurrentNPC, SpriteBatch spritebatch, Vector2 screenPos, float heightOffset = 0f)
+        {
+            float num36 = Main.NPCAddHeight(rCurrentNPC);
+            if (rCurrentNPC.confused)
+            {
+                Vector2 halfSize = rCurrentNPC.frame.Size() / 2;
+                spritebatch.Draw(TextureAssets.Confuse.Value, new Vector2(rCurrentNPC.position.X - screenPos.X + (float)(rCurrentNPC.width / 2) - (float)TextureAssets.Npc[rCurrentNPC.type].Width() * rCurrentNPC.scale / 2f + halfSize.X * rCurrentNPC.scale, rCurrentNPC.position.Y - screenPos.Y + (float)rCurrentNPC.height - (float)TextureAssets.Npc[rCurrentNPC.type].Height() * rCurrentNPC.scale / (float)Main.npcFrameCount[rCurrentNPC.type] + 4f + halfSize.Y * rCurrentNPC.scale + num36 + heightOffset - (float)TextureAssets.Confuse.Height() - 20f), new Microsoft.Xna.Framework.Rectangle(0, 0, TextureAssets.Confuse.Width(), TextureAssets.Confuse.Height()), rCurrentNPC.GetShimmerColor(new Microsoft.Xna.Framework.Color(250, 250, 250, 70)), rCurrentNPC.velocity.X * -0.05f, new Vector2(TextureAssets.Confuse.Width() / 2, TextureAssets.Confuse.Height() / 2), Main.essScale + 0.2f, SpriteEffects.None, 0f);
+            }
+        }
         public static PlayerStats PlayerStats(this Player player)
         {
             return player.GetModPlayer<PlayerStats>();
@@ -20,6 +32,11 @@ namespace TerrafirmaCombat
         public static NPCStats NPCStats(this NPC npc)
         {
             return npc.GetGlobalNPC<NPCStats>();
+        }
+        public static void ParryStrike(this Player p, NPC n)
+        {
+            p.StrikeNPCDirect(n, n.CalculateHitInfo(p.PlayerStats().ParryDamage, n.Center.X < p.Center.X ? -1 : 1, false, 4, DamageClass.Melee));
+            n.AddBuff(ModContent.BuffType<Parried>(), 60);
         }
         public static bool CheckTension(this Player player, int Tension, bool Consume = true)
         {
