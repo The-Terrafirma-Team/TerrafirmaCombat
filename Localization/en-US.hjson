@@ -5,15 +5,20 @@ Mods: {
 		Buffs: {
 			Shattered: {
 				DisplayName: Shattered
-				Description: Mods.TerrafirmaCombat.Buffs.Shattered.Description
+				Description: Blocking blocked!
 			}
 
 			Parried: {
 				DisplayName: Parried
 				Description: Mods.TerrafirmaCombat.Buffs.Parried.Description
 			}
+
+			Stunned: {
+				DisplayName: Stunned
+				Description: Mods.TerrafirmaCombat.Buffs.Stunned.Description
+			}
 		}
 
-		Projectiles.SlimeStab.DisplayName: Slime Stab
+		Projectiles.SlimeStab.DisplayName: Slimey Stab
 	}
 }

@@ -8,8 +8,10 @@
 		
 	</PropertyGroup>
 	<ItemGroup>
-	  <Folder Include="Common\NewFolder\" />
-	  <Folder Include="Localization\" />
+	  <AdditionalFiles Remove="Common\NewFolder\**" />
+	  <Compile Remove="Common\NewFolder\**" />
+	  <EmbeddedResource Remove="Common\NewFolder\**" />
+	  <None Remove="Common\NewFolder\**" />
 	</ItemGroup>
 
 	<!-- References -->

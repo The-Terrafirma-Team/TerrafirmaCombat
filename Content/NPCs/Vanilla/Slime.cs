@@ -34,9 +34,12 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         private int frame;
         public override void FindFrame(NPC npc, int frameHeight)
         {
+            npc.frame.Y = frame * frameHeight;
+            if (npc.NPCStats().NoAnimation)
+                return;
             if (npc.ai[2] == 0)
             {
-                frameCounter += 1f;
+                frameCounter += npc.NPCStats().MoveSpeed;
                 if (frameCounter > 8)
                 {
                     frameCounter = 0;
@@ -50,35 +53,34 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                 else if (npc.velocity.Y > 0)
                     frame = 4;
             }
-            npc.frame.Y = frame * frameHeight;
         }
         public override void SetDefaults(NPC npc)
         {
             npc.alpha = 0;
             npc.aiStyle = -1;
             if (!npc.IsABestiaryIconDummy)
-                npc.color = Color.Lerp(new Color(0, 80, 255, 100), new Color(0, 200, 255, 100), Main.rand.NextFloat());
+                npc.color = Color.Lerp(new Color(0, 80, 255, 130), new Color(0, 200, 255, 130), Main.rand.NextFloat());
         }
         public override void SetDefaultsFromNetId(NPC npc)
         {
-            npc.knockBackResist *= 0.5f;
+            byte alpha = 130;
             if (!npc.IsABestiaryIconDummy)
                 switch (npc.netID)
                 {
                     case NPCID.RedSlime:
-                        npc.color = Color.Lerp(new Color(255, 60, 0, 100), new Color(255, 0, 60, 100), Main.rand.NextFloat());
+                        npc.color = Color.Lerp(new Color(255, 60, 0, alpha), new Color(255, 0, 60, alpha), Main.rand.NextFloat());
                         break;
                     case NPCID.YellowSlime:
-                        npc.color = Color.Lerp(new Color(255, 255, 0, 100), new Color(255, 175, 100, 100), Main.rand.NextFloat());
+                        npc.color = Color.Lerp(new Color(255, 255, 0, alpha), new Color(255, 175, 100, alpha), Main.rand.NextFloat());
                         break;
                     case NPCID.GreenSlime:
-                        npc.color = Color.Lerp(new Color(0, 220, 40, 100), new Color(160, 255, 128, 100), Main.rand.NextFloat());
+                        npc.color = Color.Lerp(new Color(0, 220, 40, alpha), new Color(160, 255, 128, alpha), Main.rand.NextFloat());
                         break;
                     case NPCID.PurpleSlime:
-                        npc.color = Color.Lerp(new Color(128, 0, 255, 100), new Color(255, 0, 255, 100), Main.rand.NextFloat());
+                        npc.color = Color.Lerp(new Color(128, 0, 255, alpha), new Color(255, 0, 255, alpha), Main.rand.NextFloat());
                         break;
                     case NPCID.JungleSlime:
-                        npc.color = Color.Lerp(new Color(143, 215, 93, 100), new Color(128, 64, 0, 255), Main.rand.NextFloat(0.75f));
+                        npc.color = Color.Lerp(new Color(143, 215, 93, alpha), new Color(128, 64, 0, 255), Main.rand.NextFloat(0.75f));
                         break;
                 }
         }
@@ -100,8 +102,15 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             npc.ai[3] = 0;
             npc.netUpdate = true;
         }
+        public override void ModifyIncomingHit(NPC npc, ref NPC.HitModifiers modifiers)
+        {
+            if (npc.ai[2] > 0)
+                modifiers.DisableKnockback();
+        }
         public override void AI(NPC npc)
         {
+            npc.rotation = npc.velocity.X * 0.1f * npc.velocity.Y * -0.1f;
+
             if (npc.direction == 0)
             {
                 npc.direction = Main.rand.NextBool() ? 1 : -1;
@@ -114,7 +123,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             if (npc.wet)
             {
 
-                npc.velocity.X += npc.direction * 0.1f;
+                npc.velocity.X += npc.direction * 0.1f * npc.NPCStats().MoveSpeed;
                 if (npc.velocity.Y == 0)
                 {
                     npc.velocity.Y = -2f;
@@ -130,7 +139,10 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                 }
                 npc.ai[3] = 1;
             }
-
+            if (npc.NPCStats().Immobile)
+            {
+                return;
+            }
             if (npc.NPCStats().Parried)
             {
                 npc.ai[3] = 0;
@@ -153,12 +165,12 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             else if (npc.ai[3] == 1)
             {
                 if ((npc.direction == 1 && npc.velocity.X < 0.1f) || (npc.direction == -1 && npc.velocity.X > -0.1f) && CanAttack(npc))
-                    npc.velocity.X += npc.direction * 0.6f;
+                    npc.velocity.X += npc.direction * 0.6f * npc.NPCStats().MoveSpeed;
             }
             if (npc.ai[0] > 50)
-                frameCounter++;
+                frameCounter += npc.NPCStats().MoveSpeed;
             if (npc.ai[0] > 75)
-                frameCounter++;
+                frameCounter += npc.NPCStats().MoveSpeed;
 
             if (!npc.HasValidTarget)
             {
@@ -176,7 +188,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                     }
                     npc.ai[3] = 1;
                     npc.ai[0] = Main.rand.Next(-20, 0);
-                    npc.velocity.X += npc.direction * Main.rand.NextFloat(2, 4);
+                    npc.velocity.X += npc.direction * Main.rand.NextFloat(2, 4) * npc.NPCStats().MoveSpeed;
                     npc.velocity.Y += Main.rand.NextFloat(-8, -5);
                     npc.netUpdate = true;
                 }
@@ -192,11 +204,11 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                         npc.direction *= -1;
                     npc.ai[3] = 1;
                     npc.ai[0] = Main.rand.Next(40);
-                    npc.velocity.X += MathHelper.Clamp((p.Center.X - npc.Center.X) * 0.04f, -4, 4) * (npc.confused ? -1 : 1);
+                    npc.velocity.X += MathHelper.Clamp((p.Center.X - npc.Center.X) * 0.04f, -4, 4) * (npc.confused ? -1 : 1) * npc.NPCStats().MoveSpeed;
                     npc.velocity.Y += MathHelper.Clamp((p.Center.Y - npc.Center.Y) * 0.06f, -12, Main.rand.NextFloat(-8, -5));
                     npc.netUpdate = true;
                 }
-                else if ((((p.Center + p.velocity * 5).Distance(npc.Hitbox.ClosestPointInRect(p.Center)) < 32 && npc.ai[0] > 20) || npc.ai[2] > 0) && npc.ai[3] == 0) // Spike Attack
+                else if ((((p.Center + p.velocity * 5).Distance(npc.Hitbox.ClosestPointInRect(p.Center)) < 32 * npc.scale && npc.ai[0] > 20) || npc.ai[2] > 0) && npc.ai[3] == 0) // Spike Attack
                 {
                     npc.ai[0] = 0;
                     npc.ai[2]++;
@@ -246,22 +258,22 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         }
         private static void DrawSlime(NPC npc, Vector2 position, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor, float Opacity)
         {
-            float HighlightOpacity = 1f;
+            Color highlightColor = Color.Lerp(npc.color, drawColor, 0.8f);
 
             switch (npc.netID)
             {
                 case NPCID.BlackSlime:
                 case NPCID.BabySlime:
-                    HighlightOpacity = 0.2f;
+                    highlightColor *= 0.2f;
                     break;
                 case NPCID.JungleSlime:
-                    HighlightOpacity = 0.6f;
+                    highlightColor = highlightColor.MultiplyRGB(Color.Lerp(Color.Yellow, Color.RosyBrown, (npc.color.A - 130) / 125f)) * 0.6f;
                     break;
             }
 
-            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 4), npc.frame with { Width = 62 }, Color.Black * 0.4f * npc.Opacity * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(TextureAssets.Npc[NPCID.BlueSlime].Value, position - screenPos + new Vector2(0, 4), npc.frame, npc.GetColor(npc.GetNPCColorTintedByBuffs(drawColor)) * Opacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 4), npc.frame with { Width = 62, X = 62 }, drawColor with { A = 0 } * npc.Opacity * Opacity * HighlightOpacity, npc.rotation, new Vector2(30, 48), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 4 * npc.scale), npc.frame with { Width = 132 / 2 }, Color.Lerp(npc.GetColor(npc.GetNPCColorTintedByBuffs(drawColor)), Color.Black, 0.85f) * 0.4f * npc.Opacity * Opacity, npc.rotation, new Vector2(npc.frame.Width / 2, npc.frame.Height), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(TextureAssets.Npc[NPCID.BlueSlime].Value, position - screenPos + new Vector2(0, 4 * npc.scale), npc.frame, npc.GetColor(npc.GetNPCColorTintedByBuffs(drawColor)) * Opacity, npc.rotation, new Vector2(npc.frame.Width / 2, npc.frame.Height), npc.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Extra.Value, position - screenPos + new Vector2(0, 4 * npc.scale), npc.frame with { Width = 132 / 2, X = 132 / 2 }, highlightColor with { A = 0 } * npc.Opacity * Opacity, npc.rotation, new Vector2(npc.frame.Width / 2, npc.frame.Height), npc.scale, SpriteEffects.None, 0);
         }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
@@ -275,7 +287,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    DrawSlime(npc, npc.Bottom - (npc.velocity * i), spriteBatch, screenPos, Color.Lerp(drawColor, Color.Black, 0.2f + (i * 0.2f)), 0.2f);
+                    DrawSlime(npc, npc.Bottom - (npc.velocity * i), spriteBatch, screenPos, Color.Lerp(drawColor, Color.Black, i * 0.1f),0.2f);
                 }
             }
             DrawSlime(npc, npc.Bottom, spriteBatch, screenPos, drawColor, 1f);
@@ -290,7 +302,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
 
         public override void SetDefaults()
         {
-            Projectile.QuickDefaults(true, 92);
+            Projectile.QuickDefaults(true);
             Projectile.timeLeft = 5;
             Projectile.tileCollide = false;
             Projectile.hide = true;
@@ -299,6 +311,11 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         {
             modifiers.Knockback *= 1.5f;
             target.AddBuff(BuffID.Slow, 60 * 15);
+        }
+
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            return targetHitbox.ClosestPointInRect(targetHitbox.Center()).Distance(Projectile.Center) < (55 * Main.npc[(int)Projectile.ai[0]].scale);
         }
         public void OnBlocked(Player.HurtInfo info, Player player)
         {
