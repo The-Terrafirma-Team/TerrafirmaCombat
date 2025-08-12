@@ -12,7 +12,6 @@ namespace TerrafirmaCombat.Common
     {
         public override bool InstancePerEntity => true;
 
-        public bool Parried = false;
         public bool NoAnimation = false;
         public bool Immobile = false;
         public bool NoFlight = false;
@@ -21,7 +20,6 @@ namespace TerrafirmaCombat.Common
         public float MoveSpeed = 1f;
         public override void ResetEffects(NPC npc)
         {
-            Parried = false;
             NoAnimation = false;
             Immobile = false;
             NoFlight = false;

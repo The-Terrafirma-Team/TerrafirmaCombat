@@ -11,7 +11,7 @@ using Terraria.ID;
 
 namespace TerrafirmaCombat.Content.Buffs.Debuffs
 {
-    public class Parried : ModBuff
+    public class Flightless : ModBuff
     {
         public override void SetStaticDefaults()
         {
@@ -19,9 +19,7 @@ namespace TerrafirmaCombat.Content.Buffs.Debuffs
         }
         public override void Update(NPC npc, ref int buffIndex)
         {
-            npc.NPCStats().Parried = true;
-            //if(Main.rand.NextBool(3))
-            //Dust.NewDustPerfect(npc.position + new Vector2(Main.rand.NextFloat(npc.width),0),DustID.GoldCoin,new Vector2(0f,-Main.rand.NextFloat()));
+            npc.NPCStats().NoFlight = true;
         }
     }
 }

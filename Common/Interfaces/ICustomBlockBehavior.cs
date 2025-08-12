@@ -8,8 +8,8 @@ using Terraria.ModLoader;
 
 namespace TerrafirmaCombat.Common.Interfaces
 {
-    public interface IProjectileWithCustomBlockBehavior
+    public interface ICustomBlockBehavior
     {
-        void OnBlocked(Player.HurtInfo info, Player player);
+        void OnBlocked(Player player, float Power);
     }
 }

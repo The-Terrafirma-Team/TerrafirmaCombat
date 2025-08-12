@@ -17,6 +17,11 @@ Mods: {
 				DisplayName: Stunned
 				Description: Mods.TerrafirmaCombat.Buffs.Stunned.Description
 			}
+
+			Flightless: {
+				DisplayName: Flightless
+				Description: Mods.TerrafirmaCombat.Buffs.Flightless.Description
+			}
 		}
 
 		Projectiles.SlimeStab.DisplayName: Slimey Stab

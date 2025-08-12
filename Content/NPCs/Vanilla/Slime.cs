@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using TerrafirmaCombat.Common.Interfaces;
+using TerrafirmaCombat.Content.Buffs.Debuffs;
 using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
@@ -32,6 +33,11 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         }
         private float frameCounter;
         private int frame;
+
+        public void OnBlocked(NPC npc, Player player, float Power)
+        {
+            npc.AddBuff(ModContent.BuffType<Stunned>(), (int)(60 * 2 * Power));
+        }
         public override void FindFrame(NPC npc, int frameHeight)
         {
             npc.frame.Y = frame * frameHeight;
@@ -58,6 +64,8 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         {
             npc.alpha = 0;
             npc.aiStyle = -1;
+            npc.height = 22;
+            npc.width = 24;
             if (!npc.IsABestiaryIconDummy)
                 npc.color = Color.Lerp(new Color(0, 80, 255, 130), new Color(0, 200, 255, 130), Main.rand.NextFloat());
         }
@@ -90,7 +98,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
         }
         private static bool CanAttack(NPC npc)
         {
-            return npc.velocity.Y != 0 && npc.ai[3] == 1;
+            return npc.velocity.Y != 0 && npc.ai[3] == 1 && !npc.NPCStats().Immobile;
         }
         public override void OnHitByProjectile(NPC npc, Projectile projectile, NPC.HitInfo hit, int damageDone)
         {
@@ -141,10 +149,6 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             }
             if (npc.NPCStats().Immobile)
             {
-                return;
-            }
-            if (npc.NPCStats().Parried)
-            {
                 npc.ai[3] = 0;
                 npc.ai[2] = 0;
                 npc.ai[0] = 0;
@@ -176,13 +180,13 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             {
                 if (npc.life < npc.lifeMax || !Main.dayTime || npc.position.Y > Main.worldSurface * 16)
                 {
-                    npc.TargetClosest();
+                    npc.TargetClosest(false);
                 }
 
                 npc.ai[2] = 0;
                 if (npc.ai[0] > 100)
                 {
-                    if (Main.rand.NextBool(9))
+                    if (Main.rand.NextBool(3))
                     {
                         npc.direction = Main.rand.NextBool() ? -1 : 1;
                     }
@@ -296,10 +300,9 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             return false;
         }
     }
-    public class SlimeStab : ModProjectile, IProjectileWithCustomBlockBehavior
+    public class SlimeStab : ModProjectile, ICustomBlockBehavior
     {
         public override string Texture => $"Terraria/Images/Projectile_1";
-
         public override void SetDefaults()
         {
             Projectile.QuickDefaults(true);
@@ -312,12 +315,11 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             modifiers.Knockback *= 1.5f;
             target.AddBuff(BuffID.Slow, 60 * 15);
         }
-
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
         {
             return targetHitbox.ClosestPointInRect(targetHitbox.Center()).Distance(Projectile.Center) < (55 * Main.npc[(int)Projectile.ai[0]].scale);
         }
-        public void OnBlocked(Player.HurtInfo info, Player player)
+        public void OnBlocked(Player player, float Power)
         {
             player.ParryStrike(Main.npc[(int)Projectile.ai[0]]);
         }

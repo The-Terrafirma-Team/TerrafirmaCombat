@@ -7,12 +7,6 @@
 	<PropertyGroup>
 		
 	</PropertyGroup>
-	<ItemGroup>
-	  <AdditionalFiles Remove="Common\NewFolder\**" />
-	  <Compile Remove="Common\NewFolder\**" />
-	  <EmbeddedResource Remove="Common\NewFolder\**" />
-	  <None Remove="Common\NewFolder\**" />
-	</ItemGroup>
 
 	<!-- References -->
 

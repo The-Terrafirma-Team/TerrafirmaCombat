@@ -1,14 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TerrafirmaCombat.Common;
-using TerrafirmaCombat.Content.Buffs.Debuffs;
+using TerrafirmaCombat.Common.Interfaces;
+using TerrafirmaCombat.Content.NPCs.Vanilla;
 using Terraria;
 using Terraria.GameContent;
+using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
@@ -35,8 +33,28 @@ namespace TerrafirmaCombat
         }
         public static void ParryStrike(this Player p, NPC n)
         {
+            float power = p.PlayerStats().ParryPower;
             p.StrikeNPCDirect(n, n.CalculateHitInfo(p.PlayerStats().ParryDamage, n.Center.X < p.Center.X ? -1 : 1, false, 4, DamageClass.Melee));
-            n.AddBuff(ModContent.BuffType<Parried>(), 60);
+            if (n.ModNPC is ICustomBlockBehavior i)
+                i.OnBlocked(p, power);
+            else
+            {
+                switch (n.type)
+                {
+                    case NPCID.BlueSlime:
+                        n.GetGlobalNPC<Slime>().OnBlocked(n, p, power);
+                        break;
+                    case NPCID.DemonEye:
+                    case NPCID.CataractEye:
+                    case NPCID.PurpleEye:
+                    case NPCID.GreenEye:
+                    case NPCID.DemonEyeOwl:
+                    case NPCID.DemonEyeSpaceship:
+                    case NPCID.DialatedEye:
+                        n.GetGlobalNPC<DemonEye>().OnBlocked(n, p, power);
+                        break;
+                }
+            }
         }
         public static bool CheckTension(this Player player, int Tension, bool Consume = true)
         {

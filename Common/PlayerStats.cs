@@ -9,8 +9,9 @@ namespace TerrafirmaCombat.Common
 {
     public class PlayerStats : ModPlayer
     {
-        public int ParryDamage = 0;
 
+        public int ParryDamage = 0;
+        public float ParryPower = 1f;
         // Tension
         public int Tension = 50;
         public int TensionMax = 50;
@@ -21,13 +22,15 @@ namespace TerrafirmaCombat.Common
         public int FlatTensionCost = 0;
         public override void ResetEffects()
         {
+            ParryDamage = 8;
+            ParryPower = 1f;
+
             TensionMax2 = TensionMax;
             Tension = Math.Clamp(Tension, 0, TensionMax2);
             TensionGainMultiplier = 1f;
             TensionCostMultiplier = 1f;
             FlatTensionGain = 0;
             FlatTensionCost = 0;
-            ParryDamage = 8;
         }
     }
 }

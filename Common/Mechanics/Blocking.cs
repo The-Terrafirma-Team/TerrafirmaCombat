@@ -104,9 +104,9 @@ namespace TerrafirmaCombat.Common.Mechanics
                 {
                     Player.ParryStrike(n);
                 }
-                else if(causingEntity is Projectile p && p.ModProjectile is IProjectileWithCustomBlockBehavior i)
+                else if(causingEntity is Projectile p && p.ModProjectile is ICustomBlockBehavior i)
                 {
-                    i.OnBlocked(info, Player);
+                    i.OnBlocked(Player, Player.PlayerStats().ParryPower);
                 }
                 return true;
             }
