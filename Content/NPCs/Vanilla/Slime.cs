@@ -163,7 +163,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
             if (npc.velocity.Y == 0)
             {
                 npc.velocity.X *= 0.8f;
-                npc.ai[0]++;
+                npc.ai[0]+= npc.NPCStats().AttackSpeed;
                 npc.ai[3] = 0;
             }
             else if (npc.ai[3] == 1)
@@ -216,7 +216,7 @@ namespace TerrafirmaCombat.Content.NPCs.Vanilla
                 {
                     npc.ai[0] = 0;
                     npc.ai[2]++;
-                    switch (npc.ai[2] + 7)
+                    switch ((int)npc.ai[2] + 7)
                     {
                         case 10:
                             frame = 6;

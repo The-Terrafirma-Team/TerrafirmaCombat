@@ -18,6 +18,7 @@ namespace TerrafirmaCombat.Common
         public bool Silenced = false;
 
         public float MoveSpeed = 1f;
+        public float AttackSpeed = 1f;
         public override void ResetEffects(NPC npc)
         {
             NoAnimation = false;
@@ -26,6 +27,7 @@ namespace TerrafirmaCombat.Common
             Silenced = false;
 
             MoveSpeed = 1f;
+            AttackSpeed = 1f;
         }
     }
 }
