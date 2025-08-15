@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using Terraria.ModLoader;
 
 namespace TerrafirmaCombat.Common
 {
     public class PlayerStats : ModPlayer
     {
+        public bool ItemUseBlocked = false;
 
         public int ParryDamage = 0;
         public float ParryPower = 1f;
@@ -22,6 +24,8 @@ namespace TerrafirmaCombat.Common
         public int FlatTensionCost = 0;
         public override void ResetEffects()
         {
+            ItemUseBlocked = false;
+
             ParryDamage = 8;
             ParryPower = 1f;
 
@@ -31,6 +35,11 @@ namespace TerrafirmaCombat.Common
             TensionCostMultiplier = 1f;
             FlatTensionGain = 0;
             FlatTensionCost = 0;
+        }
+        public override bool CanUseItem(Item item)
+        {
+            if (ItemUseBlocked) return false;
+            return base.CanUseItem(item);
         }
     }
 }

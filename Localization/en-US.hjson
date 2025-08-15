@@ -1,6 +1,12 @@
 Mods: {
 	TerrafirmaCombat: {
-		Keybinds.BlockKey.DisplayName: Block Key
+		Keybinds: {
+			BlockKey.DisplayName: Block Key
+			"First Skill.DisplayName": First  Skill
+			"Second Skill.DisplayName": Second  Skill
+			"Third Skill.DisplayName": Third  Skill
+			"Fourth Skill.DisplayName": Fourth  Skill
+		}
 
 		Buffs: {
 			Shattered: {
