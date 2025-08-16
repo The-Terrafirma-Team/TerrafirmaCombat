@@ -28,6 +28,11 @@ Mods: {
 				DisplayName: Flightless
 				Description: Mods.TerrafirmaCombat.Buffs.Flightless.Description
 			}
+
+			FocusStrikeBuff: {
+				DisplayName: Focus Strike Buff
+				Description: Mods.TerrafirmaCombat.Buffs.FocusStrikeBuff.Description
+			}
 		}
 
 		Projectiles.SlimeStab.DisplayName: Slimey Stab

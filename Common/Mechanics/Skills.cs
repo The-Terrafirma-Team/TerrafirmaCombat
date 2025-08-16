@@ -1,10 +1,14 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ReLogic.Content;
 using System.Linq;
 using TerrafirmaCombat.Content.Skills;
 using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameInput;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace TerrafirmaCombat.Common.Mechanics
@@ -28,6 +32,8 @@ namespace TerrafirmaCombat.Common.Mechanics
             SkillsSystem.SkillTextures = SkillsSystem.SkillTextures.Append(ModContent.Request<Texture2D>(Texture)).ToArray();
         }
         public virtual int ManaCost => 0;
+
+        public virtual Color RechargeFlashColor => Color.White;
         public virtual int TensionCost => 0;
         /// <summary>
         /// The amount of frames this skill's cooldown is by default.
@@ -49,7 +55,7 @@ namespace TerrafirmaCombat.Common.Mechanics
         public float CastTime = -1f;
         public virtual bool CanCooldown(Player player)
         {
-            return CastTime == -1f;
+            return CastTime <= -1f;
         }
         public bool TryToUse(Player player, bool pay = true)
         {
@@ -80,7 +86,6 @@ namespace TerrafirmaCombat.Common.Mechanics
         }
         public virtual void Update(Player player, bool OnCooldown)
         {
-
         }
         public virtual void Use(Player player)
         {
@@ -88,9 +93,15 @@ namespace TerrafirmaCombat.Common.Mechanics
         public virtual void Casting(Player player)
         {
         }
+        public virtual void OnCastInterrupted(Player player, Player.HurtInfo info)
+        {
+
+        }
+        public virtual void CastingEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
+        {
+        }
         public void Unload()
         {
-            throw new System.NotImplementedException();
         }
     }
 
@@ -106,25 +117,59 @@ namespace TerrafirmaCombat.Common.Mechanics
     }
     public class SkillsPlayer : ModPlayer
     {
-        public Skill[] Skills = { new TestSkill(), new TestSkill2(), new TestSkill3(), new TestSkill4() };
+        public Skill[] Skills = { new FocusStrike(), null, null, null };
+        public static bool[] HasDoneCooldownChime = { true, true, true, true };
+        public static byte[] CooldownFlashLight = { 0, 0, 0, 0 };
 
-        public int MaxSkills = 4;
+        public int MaxSkills = 2;
         public static ModKeybind Skill1 { get; set; }
         public static ModKeybind Skill2 { get; set; }
         public static ModKeybind Skill3 { get; set; }
         public static ModKeybind Skill4 { get; set; }
-
+        public override void DrawEffects(PlayerDrawSet drawInfo, ref float r, ref float g, ref float b, ref float a, ref bool fullBright)
+        {
+            for (int i = 0; i < Skills.Length; i++)
+            {
+                if (Skills[i] != null && Skills[i].CastTime > 0f)
+                {
+                    Skills[i].CastingEffects(drawInfo,ref r, ref g, ref b, ref a, ref fullBright);
+                }
+            }
+        }
+        public override void OnHurt(Player.HurtInfo info)
+        {
+            for (int i = 0; i < Skills.Length; i++)
+            {
+                if (Skills[i] != null && Skills[i].CastTime > -1)
+                {
+                    Skills[i].CastTime = -1;
+                    Skills[i].Cooldown = 0.5f;
+                    Skills[i].OnCastInterrupted(Player, info);
+                }
+            }
+        }
         public override void PostUpdateBuffs()
         {
             for (int i = 0; i < Skills.Length; i++)
             {
+                if(CooldownFlashLight[i] > 17)
+                CooldownFlashLight[i]-= 17;
+
                 if (Skills[i] != null)
                 {
                     if (Skills[i].CanCooldown(Player))
                     {
                         Skills[i].Cooldown -= 1f / Skills[i].CooldownMax;
                         if (Skills[i].Cooldown < 0f)
+                        {
+                            if (!HasDoneCooldownChime[i])
+                            {
+                                CooldownFlashLight[i] = 255;
+                                SoundEngine.PlaySound(SoundID.MaxMana);
+                                HasDoneCooldownChime[i] = true;
+                            }
                             Skills[i].Cooldown = 0f;
+                        }
                     }
                     if (Skills[i].CastTimeMax > 0)
                     {
@@ -134,6 +179,7 @@ namespace TerrafirmaCombat.Common.Mechanics
                         }
                         if (Skills[i].CastTime < 0f && Skills[i].CastTime != -1)
                         {
+                            HasDoneCooldownChime[i] = false;
                             Skills[i].Use(Player);
                             Skills[i].CastTime = -1f;
                         }
@@ -159,22 +205,34 @@ namespace TerrafirmaCombat.Common.Mechanics
             if (Skill1.JustPressed && Skills[0] != null && Skills[0].TryToUse(Player))
             {
                 if (Skills[0].CastTimeMax == 0)
+                {
+                    HasDoneCooldownChime[0] = false;
                     Skills[0].Use(Player);
+                }
             }
             if (Skill2.JustPressed && Skills[1] != null && Skills[1].TryToUse(Player))
             {
                 if (Skills[1].CastTimeMax == 0)
+                {
+                    HasDoneCooldownChime[1] = false;
                     Skills[1].Use(Player);
+                }
             }
             if (MaxSkills >= 3 && Skill3.JustPressed && Skills[2] != null && Skills[2].TryToUse(Player))
             {
                 if (Skills[2].CastTimeMax == 0)
+                {
+                    HasDoneCooldownChime[2] = false;
                     Skills[2].Use(Player);
+                }
             }
             if (MaxSkills >= 4 && Skill4.JustPressed && Skills[3] != null && Skills[3].TryToUse(Player))
             {
                 if (Skills[3].CastTimeMax == 0)
+                {
+                    HasDoneCooldownChime[3] = false;
                     Skills[3].Use(Player);
+                }
             }
         }
         public override void Unload()
