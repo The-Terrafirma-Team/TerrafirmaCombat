@@ -15,9 +15,6 @@ namespace TerrafirmaCombat.Common.Mechanics
 {
     public abstract class Skill : ILoadable
     {
-        /// <summary>
-        /// DON'T EVER SET THIS YOURSELF!!! EVER!!!
-        /// </summary>
         public int ID()
         {
             for (int i = 0; i < SkillsSystem.Skills.Length; i++)
