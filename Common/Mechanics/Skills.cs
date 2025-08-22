@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ReLogic.Content;
 using System.Linq;
-using TerrafirmaCombat.Content.Skills;
+using Terrafirma.Content.Skills;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -11,7 +11,7 @@ using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Common.Mechanics
+namespace Terrafirma.Common.Mechanics
 {
     public abstract class Skill : ILoadable
     {
@@ -114,6 +114,10 @@ namespace TerrafirmaCombat.Common.Mechanics
     }
     public class SkillsPlayer : ModPlayer
     {
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            return ModContent.GetInstance<ServerConfig>().CombatReworkEnabled;
+        }
         public Skill[] Skills = { new FocusStrike(), null, null, null };
         public static bool[] HasDoneCooldownChime = { true, true, true, true };
         public static byte[] CooldownFlashLight = { 0, 0, 0, 0 };

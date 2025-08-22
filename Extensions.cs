@@ -1,16 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using TerrafirmaCombat.Common;
-using TerrafirmaCombat.Common.Interfaces;
-using TerrafirmaCombat.Content.NPCs.Vanilla;
+using Terrafirma.Common;
+using Terrafirma.Common.Interfaces;
+using Terrafirma.Content.NPCs.Vanilla;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat
+namespace Terrafirma
 {
     public static class Extensions
     {

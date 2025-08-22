@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Common.Mechanics
+namespace Terrafirma.Common.Mechanics
 {
     public class TensionGainFromAttacks : ModPlayer
     {
         public float AccumulatedTension = 0;
-
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
         {
             if(target.friendly || target.lifeMax <= 5)

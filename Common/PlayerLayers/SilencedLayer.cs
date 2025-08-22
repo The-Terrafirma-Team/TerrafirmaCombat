@@ -10,7 +10,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Common.PlayerLayers
+namespace Terrafirma.Common.PlayerLayers
 {
     public class SilencedLayer : PlayerDrawLayer
     {

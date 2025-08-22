@@ -1,8 +1,8 @@
-﻿using TerrafirmaCombat.Common.Mechanics;
+﻿using Terrafirma.Common.Mechanics;
 using Terraria;
 using Terraria.ID;
 
-namespace TerrafirmaCombat.Content.Skills
+namespace Terrafirma.Content.Skills
 {
     internal class TestSkill : Skill
     {

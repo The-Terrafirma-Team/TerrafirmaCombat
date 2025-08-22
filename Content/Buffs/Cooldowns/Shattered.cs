@@ -1,4 +1,4 @@
-﻿using TerrafirmaCombat.Common.Mechanics;
+﻿using Terrafirma.Common.Mechanics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Content.Buffs.Cooldowns
+namespace Terrafirma.Content.Buffs.Cooldowns
 {
     public class Shattered : ModBuff
     {

@@ -1,14 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
-using TerrafirmaCombat.Common;
-using TerrafirmaCombat.Content.Buffs.Debuffs;
+using Terrafirma.Common;
+using Terrafirma.Content.Buffs.Debuffs;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Content.NPCs.Vanilla
+namespace Terrafirma.Content.NPCs.Vanilla
 {
     public class DemonEye : GlobalNPC
     {
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            return ModContent.GetInstance<ServerConfig>().CombatReworkEnabled;
+        }
         public override bool InstancePerEntity => true;
         public override bool AppliesToEntity(NPC entity, bool lateInstantiation)
         {

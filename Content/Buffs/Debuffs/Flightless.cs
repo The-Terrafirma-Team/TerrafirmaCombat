@@ -1,4 +1,4 @@
-﻿using TerrafirmaCombat.Common.Mechanics;
+﻿using Terrafirma.Common.Mechanics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Terraria.ID;
 
-namespace TerrafirmaCombat.Content.Buffs.Debuffs
+namespace Terrafirma.Content.Buffs.Debuffs
 {
     public class Flightless : ModBuff
     {

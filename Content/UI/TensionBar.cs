@@ -11,9 +11,9 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.UI;
-using TerrafirmaCombat.Common;
+using Terrafirma.Common;
 
-namespace TerrafirmaCombat.Content.UI
+namespace Terrafirma.Content.UI
 {
     public class TensionBar : UIState
     {

@@ -3,13 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using ReLogic.Graphics;
 using System.Collections.Generic;
-using TerrafirmaCombat.Common.Mechanics;
+using Terrafirma.Common;
+using Terrafirma.Common.Mechanics;
 using Terraria;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 using Terraria.UI;
 
-namespace TerrafirmaCombat.Content.UI
+namespace Terrafirma.Content.UI
 {
     public class SkillsBar : UIState
     {
@@ -95,18 +96,21 @@ namespace TerrafirmaCombat.Content.UI
         }
         public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers)
         {
-            int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Resource Bars"));
-            if (mouseTextIndex != -1)
+            if (ModContent.GetInstance<ServerConfig>().CombatReworkEnabled)
             {
-                layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
-                    "Terrafirma: Skills Bar",
-                    delegate
-                    {
-                        skillsBarInterface?.Draw(Main.spriteBatch, new GameTime());
-                        return true;
-                    },
-                    InterfaceScaleType.UI)
-                );
+                int mouseTextIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Resource Bars"));
+                if (mouseTextIndex != -1)
+                {
+                    layers.Insert(mouseTextIndex, new LegacyGameInterfaceLayer(
+                        "Terrafirma: Skills Bar",
+                        delegate
+                        {
+                            skillsBarInterface?.Draw(Main.spriteBatch, new GameTime());
+                            return true;
+                        },
+                        InterfaceScaleType.UI)
+                    );
+                }
             }
         }
     }

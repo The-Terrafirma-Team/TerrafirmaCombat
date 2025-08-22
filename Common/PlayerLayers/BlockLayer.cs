@@ -6,15 +6,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TerrafirmaCombat.Common.Mechanics;
+using Terrafirma.Common.Mechanics;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Common.PlayerLayers
+namespace Terrafirma.Common.PlayerLayers
 {
     public class BlockLayer : PlayerDrawLayer
     {
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            return ModContent.GetInstance<ServerConfig>().CombatReworkEnabled;
+        }
+
         private static Asset<Texture2D> BlockTex;
         public override void Load()
         {

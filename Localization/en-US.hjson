@@ -1,5 +1,5 @@
 Mods: {
-	TerrafirmaCombat: {
+	Terrafirma: {
 		Keybinds: {
 			BlockKey.DisplayName: Block Key
 			"First Skill.DisplayName": First  Skill
@@ -36,5 +36,48 @@ Mods: {
 		}
 
 		Projectiles.SlimeStab.DisplayName: Slimey Stab
+
+		Configs: {
+			ClientConfig: {
+				DisplayName: Client Config
+
+				EnableScreenshake: {
+					Label: Enable Screenshake
+					Tooltip: ""
+				}
+
+				EnableMusicReplacements: {
+					Label: Enable Music Replacements
+					Tooltip: ""
+				}
+
+				EnableAmbientParticles: {
+					Label: Enable Ambient Particles
+					Tooltip: ""
+				}
+			}
+
+			Headers: {
+				Accessibility: Accessibility
+				Modules: Modules
+				Preferences: Enable Music Replacements Header
+			}
+
+			ServerConfig: {
+				DisplayName: Server Config
+
+				CombatReworkEnabled: {
+					Label: Enable Combat Overhaul
+					Tooltip: ""
+				}
+			}
+		}
+
+		Items: {
+			SmoothStone: {
+				DisplayName: Smooth Stone
+				Tooltip: ""
+			}
+		}
 	}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Common
+namespace Terrafirma.Common
 {
     public class NPCStats : GlobalNPC
     {

@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TerrafirmaCombat.Common.Interfaces;
-using TerrafirmaCombat.Content.Buffs.Cooldowns;
-using TerrafirmaCombat.Content.Buffs.Debuffs;
+using Terrafirma.Common.Interfaces;
+using Terrafirma.Content.Buffs.Cooldowns;
+using Terrafirma.Content.Buffs.Debuffs;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -20,10 +20,14 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.Player;
 
-namespace TerrafirmaCombat.Common.Mechanics
+namespace Terrafirma.Common.Mechanics
 {
     public class BlockingPlayer : ModPlayer
     {
+        public override bool IsLoadingEnabled(Mod mod)
+        {
+            return ModContent.GetInstance<ServerConfig>().CombatReworkEnabled;
+        }
         public static ModKeybind BlockKey { get; set; }
         public override void Load()
         {

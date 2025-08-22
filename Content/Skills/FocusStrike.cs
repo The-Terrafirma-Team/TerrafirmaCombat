@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TerrafirmaCombat.Common.Mechanics;
+using Terrafirma.Common.Mechanics;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.Drawing;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace TerrafirmaCombat.Content.Skills
+namespace Terrafirma.Content.Skills
 {
     public class FocusStrike : Skill
     {
